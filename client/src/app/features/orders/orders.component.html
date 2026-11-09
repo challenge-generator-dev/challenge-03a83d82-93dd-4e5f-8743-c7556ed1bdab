@@ -1,0 +1,53 @@
+<div class="orders-container">
+  <header class="orders-header">
+    <h1 class="orders-title">Órdenes en Tiempo Real</h1>
+    <div class="orders-status">
+      <span class="status-indicator" [class.connected]="isConnected$ | async"></span>
+      <span class="status-text">{{ (isConnected$ | async) ? 'Conectado' : 'Desconectado' }}</span>
+    </div>
+  </header>
+
+  <div class="orders-content" *ngIf="!(isLoading$ | async); else loadingTemplate">
+    <div class="orders-list" *ngIf="(orders$ | async)?.length; else emptyTemplate">
+      <app-order-item
+        *ngFor="let order of orders$ | async; trackBy: trackByOrderId"
+        [order]="order"
+        class="order-item-wrapper">
+      </app-order-item>
+    </div>
+
+    <ng-template #emptyTemplate>
+      <div class="empty-state">
+        <mat-icon class="empty-icon">inbox</mat-icon>
+        <p class="empty-message">No hay órdenes disponibles</p>
+        <p class="empty-hint">Las órdenes aparecerán aquí cuando se reciban eventos</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <ng-template #loadingTemplate>
+    <div class="loading-state">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p class="loading-message">Conectando al stream de eventos...</p>
+    </div>
+  </ng-template>
+
+  <footer class="orders-footer">
+    <div class="connection-info">
+      <span class="info-label">Total de órdenes:</span>
+      <span class="info-value">{{ (orderCount$ | async) || 0 }}</span>
+    </div>
+    <div class="connection-info">
+      <span class="info-label">Última actualización:</span>
+      <span class="info-value">{{ lastUpdate$ | async | date:'medium' }}</span>
+    </div>
+    <button
+      mat-stroked-button
+      color="primary"
+      (click)="refreshOrders()"
+      class="refresh-button">
+      <mat-icon>refresh</mat-icon>
+      Actualizar
+    </button>
+  </footer>
+</div>

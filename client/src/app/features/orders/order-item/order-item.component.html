@@ -1,0 +1,78 @@
+<mat-card class="order-card" [class.recent]="isRecent" [class.cancelled]="order?.status === orderStatusEnum.CANCELLED">
+  <mat-card-header class="order-header">
+    <div class="order-id-container">
+      <mat-icon class="order-icon">receipt</mat-icon>
+      <span class="order-id">{{ order?.id }}</span>
+    </div>
+    <mat-chip 
+      [class]="statusConfig().class"
+      class="status-chip"
+      [matTooltip]="'Estado: ' + statusConfig().label">
+      <mat-icon class="chip-icon">{{ statusConfig().icon }}</mat-icon>
+      {{ statusConfig().label }}
+    </mat-chip>
+  </mat-card-header>
+
+  <mat-card-content class="order-content">
+    <div class="order-details">
+      <div class="detail-row">
+        <span class="detail-label">Cliente:</span>
+        <span class="detail-value">{{ order?.customerName || 'No especificado' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Total:</span>
+        <span class="detail-value amount">{{ order?.total | currency:'USD':'symbol':'1.2-2' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Items:</span>
+        <span class="detail-value">{{ order?.items?.length || 0 }} productos</span>
+      </div>
+    </div>
+
+    <div class="order-meta">
+      <div class="meta-item" [matTooltip]="formattedDate()">
+        <mat-icon class="meta-icon">access_time</mat-icon>
+        <span class="meta-text">{{ timeAgo() }}</span>
+      </div>
+      <div class="meta-item" *ngIf="order?.updatedBy">
+        <mat-icon class="meta-icon">person</mat-icon>
+        <span class="meta-text">{{ order?.updatedBy }}</span>
+      </div>
+    </div>
+
+    <div class="order-items-preview" *ngIf="order?.items?.length">
+      <div class="items-label">
+        <mat-icon>inventory_2</mat-icon>
+        <span>Resumen del pedido</span>
+      </div>
+      <ul class="items-list">
+        <li *ngFor="let item of order?.items?.slice(0, 3)" class="item-entry">
+          <span class="item-name">{{ item.name }}</span>
+          <span class="item-quantity">x{{ item.quantity }}</span>
+        </li>
+        <li *ngIf="(order?.items?.length || 0) > 3" class="item-more">
+          +{{ (order?.items?.length || 0) - 3 }} más
+        </li>
+      </ul>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions class="order-actions">
+    <button 
+      mat-button 
+      color="primary"
+      (click)="onViewDetails()"
+      class="action-button">
+      <mat-icon>visibility</mat-icon>
+      Ver detalles
+    </button>
+    <button 
+      mat-button 
+      *ngIf="order?.status === orderStatusEnum.PENDING"
+      (click)="onRetry()"
+      class="action-button">
+      <mat-icon>refresh</mat-icon>
+      Reintentar
+    </button>
+  </mat-card-actions>
+</mat-card>
